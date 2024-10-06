@@ -25,7 +25,6 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             Group {
-                
                 //NOTE: Adding this line makes the bug go away!!
                 let _ = itemToDelete
                 
@@ -43,7 +42,6 @@ struct ContentView: View {
                     }
                 }
                 .listStyle(.plain)
-                
             }
             .navigationTitle("Items")
             .toolbar {
@@ -67,12 +65,10 @@ struct ContentView: View {
                     Text("Error")
                 }
             }
-            
         }
         .onAppear {
             print("View updated")
         }
-        
     }
     
     func preDelete(item anItem: FakeData) {
