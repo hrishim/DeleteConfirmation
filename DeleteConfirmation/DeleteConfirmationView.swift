@@ -11,12 +11,12 @@ struct DeleteConfirmationView: View {
     @Environment(\.dismiss) var dismiss
     
     let delValue: Int?
-    let delIndex: Int?
+
     var onDelete: () -> Void
     
     var body: some View {
-        if let delv = delValue, let delI = delIndex {
-            Text("Deleting \(delv) at index \(delI) ")
+        if let delv = delValue {
+            Text("Deleting \(delv)")
         } else {
             Text("Error")
         }
@@ -29,10 +29,10 @@ struct DeleteConfirmationView: View {
             .padding()
             Spacer()
             Button("Delete number") {
-//                saveData()
+                onDelete()
                 dismiss()
             }
-//            .disabled(newNum == nil)
+            .disabled(delValue == nil)
             .padding()
             Spacer()
         }
@@ -49,7 +49,7 @@ struct DeleteConfirmationView: View {
     }
     
     return NavigationStack {
-        DeleteConfirmationView(delValue: 0, delIndex: 3, onDelete: removeAccounts)
+        DeleteConfirmationView(delValue: 0, onDelete: removeAccounts)
             .modelContainer(fakeData.container)
     }
 }

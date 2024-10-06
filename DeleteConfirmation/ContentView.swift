@@ -17,7 +17,7 @@ struct ContentView: View {
     
     @State private var showingAccountAdd = false
     @State private var showDeleteConfirmation = false
-    @State private var deleteOffsets: IndexSet?
+    @State private var itemToDelete: FakeData?
     
     @State private var newNum: Int?
     @State private var newNumText: String = ""
@@ -25,11 +25,22 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             Group {
+                
+                //NOTE: Adding this line makes the bug go away!!
+                let _ = itemToDelete
+                
                 List {
-                    ForEach(fakeData, id: \.id) { x in
-                        Text("Item \(x.aValue)")
+                    ForEach(fakeData, id: \.id) { item in
+                        Text("Item \(item.aValue)")
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    self.itemToDelete = item
+                                    showDeleteConfirmation = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                     }
-                    .onDelete(perform: preDelete)
                 }
                 .listStyle(.plain)
                 
@@ -46,9 +57,10 @@ struct ContentView: View {
                 AddNumberView()
             }
             .sheet(isPresented: $showDeleteConfirmation) {
-                if let delOffsets = deleteOffsets {
-                    DeleteConfirmationView(delValue: fakeData[delOffsets.first!].aValue, delIndex: delOffsets.first) {
-                        realDelete(at: delOffsets)
+                
+                if let item2Delete = self.itemToDelete {
+                    DeleteConfirmationView(delValue: item2Delete.aValue) {
+                        realDelete(item: itemToDelete)
                     }
                 }
                 else {
@@ -57,22 +69,34 @@ struct ContentView: View {
             }
             
         }
+        .onAppear {
+            print("View updated")
+        }
         
     }
     
-    func preDelete(at offsets: IndexSet) {
-        deleteOffsets = offsets
-        if deleteOffsets == nil {
-            print("Hello")
+    func preDelete(item anItem: FakeData) {
+        print("Predelete called")
+        self.itemToDelete = anItem
+        if self.itemToDelete == nil {
+            print("Expect error")
+        } else {
+            print("Should be ok.")
         }
+        
         showDeleteConfirmation = true
+        
+        // Note: Delaying also does no good
+        //        DispatchQueue.main.asyncAfter(deadline: .now() + 2 ) {
+        //            showDeleteConfirmation = true
+        //        }
     }
     
-    func realDelete(at offsets: IndexSet) {
-        offsets.forEach { index in
-            let aData = fakeData[index]
-            context.delete(aData)
+    func realDelete(item anItem: FakeData?) {
+        if let realItem = anItem {
+            context.delete(realItem)
         }
+        
     }
     
 }
